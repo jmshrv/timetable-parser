@@ -90,7 +90,7 @@ struct TimetableParser: ParsableCommand {
     func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
         let rows = try day.select("tr")
         
-        return try rows.map(activityFromRow)
+        return try rows.dropFirst().map(activityFromRow)
     }
     
     func run() throws {
