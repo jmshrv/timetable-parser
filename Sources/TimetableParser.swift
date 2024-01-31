@@ -11,8 +11,8 @@ public enum Day: Codable {
 }
 
 public struct HourMinute: Codable {
-    let hour: Int
-    let minute: Int
+    public let hour: Int
+    public let minute: Int
 }
 
 public enum Week: Codable {
@@ -24,17 +24,17 @@ public enum Week: Codable {
 }
 
 public struct TimetableEntry: Codable {
-    let activities: [String]
-    let moduleTitle: String?
-    let sessionTitle: String
-    let type: String
-    let weeks: [Week]
-    let day: Day
-    let start: HourMinute
-    let end: HourMinute
-    let staff: String
-    let location: String
-    let notes: String?
+    public let activities: [String]
+    public let moduleTitle: String?
+    public let sessionTitle: String
+    public let type: String
+    public let weeks: [Week]
+    public let day: Day
+    public let start: HourMinute
+    public let end: HourMinute
+    public let staff: String
+    public let location: String
+    public let notes: String?
 }
 
 enum TimetableParserError: LocalizedError {
