@@ -1,12 +1,14 @@
 import Foundation
 import SwiftSoup
 
-public enum Day: Codable, Hashable, Equatable {
-    case monday
-    case tuesday
-    case wednesday
-    case thursday
-    case friday
+public enum Day: Int, Codable, Hashable, Equatable, Identifiable {
+    public var id: RawValue { rawValue }
+    
+    case monday = 1
+    case tuesday = 2
+    case wednesday = 3
+    case thursday = 4
+    case friday = 5
 }
 
 public struct HourMinute: Codable, Hashable, Equatable {
@@ -31,7 +33,9 @@ public enum Week: Codable, Hashable, Equatable {
     }
 }
 
-public struct TimetableEntry: Codable, Hashable, Equatable {
+public struct TimetableEntry: Codable, Hashable, Equatable, Identifiable {
+    public let id = UUID()
+    
     public let activities: [String]
     public let moduleTitle: String?
     public let sessionTitle: String
@@ -43,6 +47,21 @@ public struct TimetableEntry: Codable, Hashable, Equatable {
     public let staff: String
     public let location: String
     public let notes: String?
+    
+//    We don't want to serialise ID
+    enum CodingKeys: CodingKey {
+        case activities
+        case moduleTitle
+        case sessionTitle
+        case type
+        case weeks
+        case day
+        case start
+        case end
+        case staff
+        case location
+        case notes
+    }
 }
 
 enum TimetableParserError: LocalizedError {
