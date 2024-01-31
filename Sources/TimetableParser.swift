@@ -23,7 +23,7 @@ public enum Day: Codable, Hashable, Equatable, Identifiable {
     case thursday
     case friday
     
-    func weekdaySymbol() -> String {
+    public var weekdaySymbol: String {
         let calendar = Calendar(identifier: .gregorian)
         return calendar.weekdaySymbols[id]
     }
