@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "timetable2json",
+    name: "TimetableParser",
     platforms: [
         .iOS(.v16),
         .macOS(.v13),
@@ -17,7 +17,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "timetable2json",
+            name: "TimetableParser",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 "SwiftSoup"
