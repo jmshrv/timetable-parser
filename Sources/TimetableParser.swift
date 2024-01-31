@@ -5,15 +5,36 @@ import Foundation
 import ArgumentParser
 import SwiftSoup
 
+enum Day {
+    case monday
+    case tuesday
+    case wednesday
+    case thursday
+    case friday
+}
+
+struct HourMinute {
+    let hour: Int
+    let minute: Int
+}
+
+enum Week {
+    /// A single week
+    case single(Int)
+    
+    /// A range of weeks, in the format (`start`, `end`)
+    case range(Int, Int)
+}
+
 struct TimetableEntry {
-    let activity: String
+    let activities: [String]
     let moduleTitle: String?
     let sessionTitle: String
     let type: String
-    let weeks: String
-    let day: String
-    let start: String
-    let end: String
+    let weeks: [Week]
+    let day: Day
+    let start: HourMinute
+    let end: HourMinute
     let staff: String
     let location: String
     let notes: String?
@@ -23,7 +44,23 @@ enum TimetableParserError: LocalizedError {
     /// The parser found an activity row with an invalid count.
     ///
     /// - Parameter count: The actual number of items.
-    case InvalidRowLength(Int)
+    case invalidRowLength(Int)
+    
+    case invalidActivityForwardSlashLength(Int)
+    
+    case invalidDay(String)
+    
+    /// When parsing a time, the parser found an unexpected number of splits, for example 00:00:00.
+    ///
+    /// - Parameter count: The actual number of splits.
+    case timeIncorrectSplits(Int)
+    
+    /// When parsing a time, the parser found an invalid component that couldn't be converted to an integer. For example, "zero".
+    ///
+    /// - Parameter component: The component that could not be parsed
+    case timeInvalidComponent(String)
+    
+    case weekInvalidSplitDate(String)
 }
 
 @main
@@ -57,7 +94,7 @@ struct TimetableParser: ParsableCommand {
         let rowDatas = try row.select("td")
         
         if rowDatas.size() != 11 {
-            throw TimetableParserError.InvalidRowLength(rowDatas.size())
+            throw TimetableParserError.invalidRowLength(rowDatas.size())
         }
         
         let activity = rowDatas[0]
@@ -73,17 +110,17 @@ struct TimetableParser: ParsableCommand {
         let notes = rowDatas[10]
         
         return TimetableEntry(
-            activity: try activity.text(),
-            moduleTitle: try moduleTitle.text(),
+            activities: try parseActivity(activity),
+            moduleTitle: try parseNullable(moduleTitle),
             sessionTitle: try sessionTitle.text(),
             type: try type.text(),
-            weeks: try weeks.text(),
-            day: try day.text(),
-            start: try start.text(),
-            end: try end.text(),
+            weeks: try parseWeeks(try weeks.text()),
+            day: try parseDay(day),
+            start: try parseTime(try start.text()),
+            end: try parseTime(try end.text()),
             staff: try staff.text(),
             location: try location.text(),
-            notes: try notes.text()
+            notes: try parseNullable(notes)
         )
     }
     
@@ -91,6 +128,98 @@ struct TimetableParser: ParsableCommand {
         let rows = try day.select("tr")
         
         return try rows.dropFirst().map(activityFromRow)
+    }
+    
+    /// Parses the timetable's activity text into module codes. For example:
+    ///
+    /// `COMP/3007/01/L/01/01,COMP/4106/01/L/01/01_JT` becomes `["COMP3007", "COMP4106"]`
+    func parseActivity(_ element: Element) throws -> [String] {
+        let text = try element.text()
+        
+        return try text.split(separator: ",").map {
+            let split = $0.split(separator: "/").prefix(2)
+            
+            guard split.count >= 2 else {
+                throw TimetableParserError.invalidActivityForwardSlashLength(split.count)
+            }
+            
+            return split.prefix(2).joined()
+        }
+    }
+    
+    func parseDay(_ element: Element) throws -> Day {
+        return switch try element.text() {
+        case "Monday":
+                .monday
+        case "Tuesday":
+                .tuesday
+        case "Wednesday":
+                .wednesday
+        case "Thursday":
+                .thursday
+        case "Friday":
+                .friday
+        default:
+            throw TimetableParserError.invalidDay(try element.text())
+        }
+    }
+    
+    /// Parses a "nullable" field. In the timetable HTML, some fields have an empty space when there is no info.
+    func parseNullable(_ element: Element) throws -> String? {
+        let text = try element.text()
+        
+//        Yes, the timetabling document specifically uses non-breaking spaces
+        if text == "\u{00A0}" {
+            return nil
+        }
+        
+        return text
+    }
+    
+    func parseTime(_ timeString: String) throws -> HourMinute {
+        let split = timeString.split(separator: ":")
+        
+        guard split.count == 2 else {
+            throw TimetableParserError.timeIncorrectSplits(split.count)
+        }
+        
+        guard let hour = Int(split[0]) else {
+            throw TimetableParserError.timeInvalidComponent(String(split[0]))
+        }
+        
+        guard let minute = Int(split[1]) else {
+            throw TimetableParserError.timeInvalidComponent(String(split[1]))
+        }
+        
+        return HourMinute(hour: hour, minute: minute)
+    }
+    
+    func parseWeeks(_ weeksString: String) throws -> [Week] {
+        return try weeksString
+            .split(separator: ",")
+            .map { week in
+                let weekString = week.trimmingCharacters(in: .whitespaces)
+                
+                if let singleWeek = Int(weekString) {
+                    return .single(singleWeek)
+                } else {
+                    let split = weekString.split(separator: "-")
+                    
+                    guard split.count == 2 else {
+                        throw TimetableParserError.weekInvalidSplitDate(weekString)
+                    }
+                    
+                    let start = Int(split[0])
+                    let end = Int(split[1])
+
+                    guard let start = start, let end = end else {
+                        throw TimetableParserError.weekInvalidSplitDate(weeksString)
+                    }
+
+                    
+                    return .range(start, end)
+                }
+            }
     }
     
     func run() throws {
