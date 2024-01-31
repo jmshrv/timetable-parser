@@ -1,11 +1,8 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
-
 import Foundation
 import ArgumentParser
 import SwiftSoup
 
-enum Day {
+public enum Day: Codable {
     case monday
     case tuesday
     case wednesday
@@ -13,12 +10,12 @@ enum Day {
     case friday
 }
 
-struct HourMinute {
+public struct HourMinute: Codable {
     let hour: Int
     let minute: Int
 }
 
-enum Week {
+public enum Week: Codable {
     /// A single week
     case single(Int)
     
@@ -26,7 +23,7 @@ enum Week {
     case range(Int, Int)
 }
 
-struct TimetableEntry {
+public struct TimetableEntry: Codable {
     let activities: [String]
     let moduleTitle: String?
     let sessionTitle: String
@@ -230,6 +227,11 @@ struct TimetableParser: ParsableCommand {
         
         let activities = try days.map(activitiesFromDay)
         
-        print(activities)
+        let encoder = JSONEncoder()
+        
+        let encoded = try encoder.encode(activities)
+        let encodedString = String(data: encoded, encoding: .utf8)!
+        
+        print(encodedString)
     }
 }

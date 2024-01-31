@@ -5,7 +5,11 @@ import PackageDescription
 let package = Package(
     name: "timetable2json",
     platforms: [
-        .macOS(.v13)
+        .iOS(.v16),
+        .macOS(.v13),
+        .tvOS(.v16),
+        .visionOS(.v1),
+        .watchOS(.v9),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
