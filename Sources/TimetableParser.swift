@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public enum Day: Codable {
+public enum Day: Codable, Hashable, Equatable {
     case monday
     case tuesday
     case wednesday
@@ -9,12 +9,12 @@ public enum Day: Codable {
     case friday
 }
 
-public struct HourMinute: Codable {
+public struct HourMinute: Codable, Hashable, Equatable {
     public let hour: Int
     public let minute: Int
 }
 
-public enum Week: Codable {
+public enum Week: Codable, Hashable, Equatable {
     /// A single week
     case single(Int)
     
@@ -31,7 +31,7 @@ public enum Week: Codable {
     }
 }
 
-public struct TimetableEntry: Codable {
+public struct TimetableEntry: Codable, Hashable, Equatable {
     public let activities: [String]
     public let moduleTitle: String?
     public let sessionTitle: String
