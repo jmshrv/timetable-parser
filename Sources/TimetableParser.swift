@@ -60,24 +60,20 @@ enum TimetableParserError: LocalizedError {
     case weekInvalidSplitDate(String)
 }
 
-@main
-struct TimetableParser: ParsableCommand {
-    @Argument(help: "The timetable, as a saved HTML file")
-    var inputPath: String
+public struct TimetableParser {
+//    func getInputFromFile(path: String) throws -> String {
+//        let url = URL(filePath: path)
+//        return try String(contentsOf: url)
+//    }
     
-    func getInputFromFile(path: String) throws -> String {
-        let url = URL(filePath: path)
-        return try String(contentsOf: url)
-    }
-    
-    func parseInput(input: String) throws -> Document {
+    public func parseInput(input: String) throws -> Document {
         return try SwiftSoup.parse(input)
     }
     
     /// Gets each day's `tbody` from the given document.
     ///
     /// - Returns: A list containing `tbody` elements for Monday-Friday. Will have 5 elements.
-    func dayTables(_ doc: Document) throws -> [Element] {
+    public func dayTables(_ doc: Document) throws -> [Element] {
         return [
             try doc.select("body > table:nth-child(3) > tbody:nth-child(2)").first()!,
             try doc.select("body > table:nth-child(5) > tbody:nth-child(2)").first()!,
@@ -121,7 +117,7 @@ struct TimetableParser: ParsableCommand {
         )
     }
     
-    func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
+    public func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
         let rows = try day.select("tr")
         
         return try rows.dropFirst().map(activityFromRow)
@@ -224,21 +220,5 @@ struct TimetableParser: ParsableCommand {
                     return .range(start, end)
                 }
             }
-    }
-    
-    func run() throws {
-        let input = try getInputFromFile(path: inputPath)
-        let doc = try parseInput(input: input)
-        
-        let days = try dayTables(doc)
-        
-        let activities = try days.map(activitiesFromDay)
-        
-        let encoder = JSONEncoder()
-        
-        let encoded = try encoder.encode(activities)
-        let encodedString = String(data: encoded, encoding: .utf8)!
-        
-        print(encodedString)
     }
 }
