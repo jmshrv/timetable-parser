@@ -21,6 +21,15 @@ public enum Week: Codable {
     
     /// A range of weeks, in the format (`start`, `end`)
     case range(Int, Int)
+    
+    func isWithin(_ week: Int) -> Bool {
+        return switch self {
+        case .single(let single):
+            week == single
+        case .range(let start, let end):
+            (start...end).contains(week)
+        }
+    }
 }
 
 public struct TimetableEntry: Codable {
