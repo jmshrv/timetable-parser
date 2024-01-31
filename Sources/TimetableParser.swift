@@ -1,14 +1,27 @@
 import Foundation
 import SwiftSoup
 
-public enum Day: Int, Codable, Hashable, Equatable, Identifiable {
-    public var id: RawValue { rawValue }
+public enum Day: Codable, Hashable, Equatable, Identifiable {
+    public var id: Int {
+        switch self {
+        case .monday:
+            1
+        case .tuesday:
+            2
+        case .wednesday:
+            3
+        case .thursday:
+            4
+        case .friday:
+            5
+        }
+    }
     
-    case monday = 1
-    case tuesday = 2
-    case wednesday = 3
-    case thursday = 4
-    case friday = 5
+    case monday
+    case tuesday
+    case wednesday
+    case thursday
+    case friday
 }
 
 public struct HourMinute: Codable, Hashable, Equatable {
