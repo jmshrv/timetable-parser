@@ -22,6 +22,11 @@ public enum Day: Codable, Hashable, Equatable, Identifiable {
     case wednesday
     case thursday
     case friday
+    
+    func weekdaySymbol() -> String {
+        let calendar = Calendar(identifier: .gregorian)
+        return calendar.weekdaySymbols[id]
+    }
 }
 
 public struct HourMinute: Codable, Hashable, Equatable {
