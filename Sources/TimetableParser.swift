@@ -131,12 +131,19 @@ struct TimetableParser: ParsableCommand {
     ///
     /// `COMP/3007/01/L/01/01,COMP/4106/01/L/01/01_JT` becomes `["COMP3007", "COMP4106"]`
     func parseActivity(_ element: Element) throws -> [String] {
-        let text = try element.text()
+        var text = try element.text()
+        
+//        Some modules have extra stuff like <22> which we don't care about
+        if let splitText = text.split(separator: "<").first {
+            text = String(splitText)
+        }
         
         return try text.split(separator: ",").map {
             let split = $0.split(separator: "/").prefix(2)
             
             guard split.count >= 2 else {
+                print(text)
+                print($0)
                 throw TimetableParserError.invalidActivityForwardSlashLength(split.count)
             }
             
