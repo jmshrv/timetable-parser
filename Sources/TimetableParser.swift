@@ -80,6 +80,20 @@ public struct TimetableEntry: Codable, Hashable, Equatable, Identifiable {
         case location
         case notes
     }
+    
+    public init(activities: [String], moduleTitle: String?, sessionTitle: String, type: String, weeks: [Week], day: Day, start: HourMinute, end: HourMinute, staff: String, location: String, notes: String?) {
+        self.activities = activities
+        self.moduleTitle = moduleTitle
+        self.sessionTitle = sessionTitle
+        self.type = type
+        self.weeks = weeks
+        self.day = day
+        self.start = start
+        self.end = end
+        self.staff = staff
+        self.location = location
+        self.notes = notes
+    }
 }
 
 enum TimetableParserError: LocalizedError {
