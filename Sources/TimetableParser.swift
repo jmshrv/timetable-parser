@@ -32,6 +32,11 @@ public enum Day: Codable, Hashable, Equatable, Identifiable {
 public struct HourMinute: Codable, Hashable, Equatable {
     public let hour: Int
     public let minute: Int
+    
+    public init(hour: Int, minute: Int) {
+        self.hour = hour
+        self.minute = minute
+    }
 }
 
 public enum Week: Codable, Hashable, Equatable {
