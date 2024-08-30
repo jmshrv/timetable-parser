@@ -130,14 +130,14 @@ public struct TimetableParser {
 //        return try String(contentsOf: url)
 //    }
     
-    public func parseInput(input: String) throws -> Document {
+    public static func parseInput(input: String) throws -> Document {
         return try SwiftSoup.parse(input)
     }
     
     /// Gets each day's `tbody` from the given document.
     ///
     /// - Returns: A list containing `tbody` elements for Monday-Friday. Will have 5 elements.
-    public func dayTables(_ doc: Document) throws -> [Element] {
+    public static func dayTables(_ doc: Document) throws -> [Element] {
         return [
             try doc.select("body > table:nth-child(3) > tbody:nth-child(2)").first()!,
             try doc.select("body > table:nth-child(5) > tbody:nth-child(2)").first()!,
@@ -147,7 +147,7 @@ public struct TimetableParser {
         ]
     }
     
-    func activityFromRow(_ row: Element) throws -> TimetableEntry {
+    static func activityFromRow(_ row: Element) throws -> TimetableEntry {
         let rowDatas = try row.select("td")
         
         if rowDatas.size() != 11 {
@@ -181,7 +181,7 @@ public struct TimetableParser {
         )
     }
     
-    public func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
+    static public func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
         let rows = try day.select("tr")
         
         return try rows.dropFirst().map(activityFromRow)
@@ -190,7 +190,7 @@ public struct TimetableParser {
     /// Parses the timetable's activity text into module codes. For example:
     ///
     /// `COMP/3007/01/L/01/01,COMP/4106/01/L/01/01_JT` becomes `["COMP3007", "COMP4106"]`
-    func parseActivity(_ element: Element) throws -> [String] {
+    static func parseActivity(_ element: Element) throws -> [String] {
         var text = try element.text()
         
 //        Some modules have extra stuff like <22> which we don't care about
@@ -211,7 +211,7 @@ public struct TimetableParser {
         }
     }
     
-    func parseDay(_ element: Element) throws -> Day {
+    static func parseDay(_ element: Element) throws -> Day {
         return switch try element.text() {
         case "Monday":
                 .monday
@@ -229,7 +229,7 @@ public struct TimetableParser {
     }
     
     /// Parses a "nullable" field. In the timetable HTML, some fields have an empty space when there is no info.
-    func parseNullable(_ element: Element) throws -> String? {
+    static func parseNullable(_ element: Element) throws -> String? {
         let text = try element.text()
         
 //        Yes, the timetabling document specifically uses non-breaking spaces
@@ -240,7 +240,7 @@ public struct TimetableParser {
         return text
     }
     
-    func parseTime(_ timeString: String) throws -> HourMinute {
+    static func parseTime(_ timeString: String) throws -> HourMinute {
         let split = timeString.split(separator: ":")
         
         guard split.count == 2 else {
@@ -258,7 +258,7 @@ public struct TimetableParser {
         return HourMinute(hour: hour, minute: minute)
     }
     
-    func parseWeeks(_ weeksString: String) throws -> [Week] {
+    static func parseWeeks(_ weeksString: String) throws -> [Week] {
         return try weeksString
             .split(separator: ",")
             .map { week in
