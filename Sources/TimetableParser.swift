@@ -130,14 +130,14 @@ public struct TimetableParser {
 //        return try String(contentsOf: url)
 //    }
     
-    public static func parseInput(input: String) throws -> Document {
+    static func parseInput(input: String) throws -> Document {
         return try SwiftSoup.parse(input)
     }
     
     /// Gets each day's `tbody` from the given document.
     ///
     /// - Returns: A list containing `tbody` elements for Monday-Friday. Will have 5 elements.
-    public static func dayTables(_ doc: Document) throws -> [Element] {
+    static func dayTables(_ doc: Document) throws -> [Element] {
         return [
             try doc.select("body > table:nth-child(3) > tbody:nth-child(2)").first()!,
             try doc.select("body > table:nth-child(5) > tbody:nth-child(2)").first()!,
@@ -181,7 +181,7 @@ public struct TimetableParser {
         )
     }
     
-    static public func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
+    static func activitiesFromDay(_ day: Element) throws -> [TimetableEntry] {
         let rows = try day.select("tr")
         
         return try rows.dropFirst().map(activityFromRow)
