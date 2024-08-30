@@ -125,13 +125,13 @@ enum TimetableParserError: LocalizedError {
 }
 
 public struct TimetableParser {
-//    func getInputFromFile(path: String) throws -> String {
-//        let url = URL(filePath: path)
-//        return try String(contentsOf: url)
-//    }
-    
-    static func parseInput(input: String) throws -> Document {
-        return try SwiftSoup.parse(input)
+    /// Parses a "Programmes by Day" timetable string from timetabling.nottingham.ac.uk into a 2D array of timetable
+    /// entries. The array is accessed like `parsed[day][activity]`. For example, to get the first activity on Tuesday,
+    /// you could do `parsed[1].first`.
+    public static func parseHtml(html: String) throws -> [[TimetableEntry]] {
+        let doc = try SwiftSoup.parse(html)
+        let days = try dayTables(doc)
+        return try days.map(activitiesFromDay)
     }
     
     /// Gets each day's `tbody` from the given document.
